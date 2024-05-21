@@ -1,0 +1,8 @@
+# Ignore the task folder
+task/
+
+# Ignore the .idea folder
+.idea/
+
+# Ignore all __pycache__ folders
+**/__pycache__/

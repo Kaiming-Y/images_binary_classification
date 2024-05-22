@@ -1,13 +1,12 @@
+import argparse
+from argparse import Namespace
 import json
 import matplotlib.pyplot as plt
 import os
 
 
-save_path = '../../fig/googlenet'
-os.makedirs(save_path, exist_ok=True)
-
-def plot_loss_curve() -> None:
-    with open('./log/training_log.json', 'r') as f:
+def plot_loss_curve(args) -> None:
+    with open(args.train_log, 'r') as f:
         log_data = json.load(f)
 
     train_losses = log_data['train_losses']
@@ -17,7 +16,7 @@ def plot_loss_curve() -> None:
 
     plot_metrics(train_losses, test_losses, train_acc, test_acc)
 
-    with open('./log/eval_metrics.json', 'r') as f:
+    with open(args.eval_metric, 'r') as f:
         metrics_data = json.load(f)
 
     accuracy = metrics_data['accuracy']
@@ -52,10 +51,33 @@ def plot_metrics(train_losses, test_losses, train_acc, test_acc) -> None:
     plt.ylabel('Accuracy')
     plt.legend()
 
+    save_dir = args.save_dir
+    os.makedirs(save_dir, exist_ok=True)
+
     plt.tight_layout()
-    plt.savefig(os.path.join(save_path, 'metrics_plot.png'))
+    plt.savefig(os.path.join(save_dir, 'metrics_plot.png'))
     plt.show()
 
 
+def arguments() -> Namespace:
+    parser = argparse.ArgumentParser(description='Arguments for evaluating GoogLeNet')
+
+    parser.add_argument('--train_log',
+                        type=str,
+                        default='./log/training_log.json',
+                        help='The path to training log')
+    parser.add_argument('--eval_metric',
+                        type=str,
+                        default='./log/eval_metrics.json',
+                        help='The path to evaluation metrics')
+    parser.add_argument('--save_dir',
+                        type=str,
+                        default='../../fig/googlenet',
+                        help='Directory to save the figure')
+
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    plot_loss_curve()
+    args = arguments()
+    plot_loss_curve(args)

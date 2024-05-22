@@ -3,6 +3,8 @@ from argparse import Namespace
 import json
 import matplotlib.pyplot as plt
 import os
+from datetime import datetime
+import numpy as np
 
 
 def plot_loss_curve(args) -> None:
@@ -13,8 +15,10 @@ def plot_loss_curve(args) -> None:
     test_losses = log_data['test_losses']
     train_acc = log_data['train_acc']
     test_acc = log_data['test_acc']
+    test_times = log_data['test_times']
 
     plot_metrics(train_losses, test_losses, train_acc, test_acc)
+    plot_test_times(test_times)
 
     with open(args.eval_metric, 'r') as f:
         metrics_data = json.load(f)
@@ -55,12 +59,35 @@ def plot_metrics(train_losses, test_losses, train_acc, test_acc) -> None:
     os.makedirs(save_dir, exist_ok=True)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(save_dir, 'metrics_plot.png'))
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    plt.savefig(os.path.join(save_dir, f'loss_and_accuracy_plot_{timestamp}.png'))
+    plt.show()
+
+
+def plot_test_times(test_times):
+    epochs = range(1, len(test_times) + 1)
+    avg_test_time = np.mean(test_times)
+
+    plt.figure(figsize=(8, 5))
+
+    plt.plot(epochs, test_times, 'g-', label='Test Time')
+    plt.axhline(y=avg_test_time, color='r', linestyle='--', label=f'Avg Time: {avg_test_time:.4f} sec')
+    plt.title('Test Time per Epoch')
+    plt.xlabel('Epochs')
+    plt.ylabel('Time (seconds)')
+    plt.legend()
+
+    save_dir = args.save_dir
+    os.makedirs(save_dir, exist_ok=True)
+
+    plt.tight_layout()
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    plt.savefig(os.path.join(save_dir, f'test_time_plot_{timestamp}.png'))
     plt.show()
 
 
 def arguments() -> Namespace:
-    parser = argparse.ArgumentParser(description='Arguments for evaluating GoogLeNet')
+    parser = argparse.ArgumentParser(description='Arguments for GoogLeNet plotting')
 
     parser.add_argument('--train_log',
                         type=str,

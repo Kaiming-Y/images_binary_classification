@@ -6,22 +6,26 @@ import torch
 from data_processor import load_data
 from model import googlenet
 from utils import calculate_metrics
+from datetime import datetime
 
 
 def main(args):
     # Parameters
+    num_classes = args.num_classes
     batch_size = args.batch_size
     data_dir = os.path.join(args.dataset_dir, 'dataset')
     augment_dir = os.path.join(args.dataset_dir, 'dataset_augmented')
     model_path = os.path.join(args.model_dir, args.model)
-    log_file = './log/eval_metrics.json'
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    log_file = f'./log/eval_metrics_{timestamp}.json'
+    # log_file = './log/eval_metrics.json'
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     # Load data
-    _, test_loader = load_data(data_dir, augment_dir, batch_size)
+    _, test_loader = load_data(data_dir, augment_dir, batch_size, 0.2, args.augment)
 
     # Init GoogLeNet
-    model = googlenet(num_classes=2)
+    model = googlenet(num_classes=num_classes)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.load_state_dict(torch.load(model_path))
     model.to(device)
@@ -49,6 +53,13 @@ def main(args):
 def arguments() -> Namespace:
     parser = argparse.ArgumentParser(description='Arguments for evaluating GoogLeNet')
 
+    parser.add_argument('--augment',
+                        action='store_true', 
+                        help='Whether to augment the data or not')
+    parser.add_argument('--num_classes',
+                        type=int,
+                        default=2,
+                        help='The number of categories for the network to predict')
     parser.add_argument('--batch_size',
                         type=int,
                         default=32,

@@ -11,7 +11,8 @@ def load_data(
         data_dir: str,
         augment_dir: str,
         batch_size: int = 32,
-        test_ratio: float = 0.2
+        test_ratio: float = 0.2,
+        augment: bool = False
 ) -> Tuple[DataLoader, DataLoader]:
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -21,33 +22,44 @@ def load_data(
 
     augment_transform = transforms.Compose([
         RandomHorizontalFlip(),
-        RandomRotation(10)
+        RandomRotation(180)
     ])
 
     # Original dataset
     ship_dir = os.path.join(data_dir, 'ship')
     sea_dir = os.path.join(data_dir, 'sea')
-    ship_images = [os.path.join(ship_dir, file_name) for file_name in os.listdir(ship_dir)]
-    sea_images = [os.path.join(sea_dir, file_name) for file_name in os.listdir(sea_dir)]
-    original_ship_images = [(img, 1) for img in ship_images]
-    original_sea_images = [(img, 0) for img in sea_images]
+    ship_images_raw = [os.path.join(ship_dir, file_name) for file_name in os.listdir(ship_dir)]
+    sea_images_raw = [os.path.join(sea_dir, file_name) for file_name in os.listdir(sea_dir)]
+    ship_images = [(img, 1) for img in ship_images_raw]
+    sea_images = [(img, 0) for img in sea_images_raw]
 
-    # Augmented dataset
-    os.makedirs(augment_dir, exist_ok=True)
-    os.makedirs(os.path.join(augment_dir, 'ship'), exist_ok=True)
-    os.makedirs(os.path.join(augment_dir, 'sea'), exist_ok=True)
-    # Augment ship dataset only
-    augmented_ship_images = augment_images(ship_images, 1, 3, os.path.join(augment_dir, 'ship'), augment_transform)
+    if augment:
+        # Augmented dataset
+        os.makedirs(augment_dir, exist_ok=True)
+        os.makedirs(os.path.join(augment_dir, 'ship'), exist_ok=True)
+        os.makedirs(os.path.join(augment_dir, 'sea'), exist_ok=True)
+        augmented_ship_images = augment_images(ship_images_raw, 1, 5, os.path.join(augment_dir, 'ship'), augment_transform)
+        augmented_sea_images = augment_images(sea_images_raw, 0, 1, os.path.join(augment_dir, 'sea'), augment_transform)
 
-    # Integrate and shuffle original and augmented data sets: 4000 ship + 3000 sea images
-    all_images = original_ship_images + augmented_ship_images + original_sea_images
-    random.shuffle(all_images)
+        # Integrate original and augmented data sets: 6000 ship & 6000 sea images
+        ship_images = ship_images + augmented_ship_images
+        sea_images = sea_images + augmented_sea_images
 
     # Partition the data set
-    total_size = len(all_images)
-    test_size = int(total_size * test_ratio)
-    train_images = all_images[test_size:]
-    test_images = all_images[:test_size]
+    random.shuffle(ship_images)
+    random.shuffle(sea_images)
+    ship_size = len(ship_images)
+    sea_size = len(sea_images)
+    ship_test_size = int(ship_size * test_ratio)
+    sea_test_size = int(sea_size * test_ratio)
+    ship_train_images = ship_images[ship_test_size:]
+    ship_test_images = ship_images[:ship_test_size]
+    sea_train_images = sea_images[sea_test_size:]
+    sea_test_images = sea_images[:sea_test_size]
+
+    train_images = ship_train_images + sea_train_images
+    test_images = ship_test_images + sea_test_images
+
 
     class CustomDataset(Dataset):
         def __init__(
@@ -86,7 +98,7 @@ def augment_images(
         transform: transforms = None
 ) -> List[Tuple[str, int]]:
     if transform is None:
-        transform = transforms.Compose([RandomHorizontalFlip(), RandomRotation(10)])
+        transform = transforms.Compose([RandomHorizontalFlip(), RandomRotation(180)])
 
     augmented_images = []
     for img_path in image_list:

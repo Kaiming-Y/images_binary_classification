@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.optim as optim
 from data_processor import load_data
 from model import googlenet
+from datetime import datetime
+import time
 
 
 def main(args):
@@ -19,12 +21,14 @@ def main(args):
     augment_dir = os.path.join(args.dataset_dir, 'dataset_augmented')
     model_dir = args.model_dir
     os.makedirs(model_dir, exist_ok=True)
-    log_file = './log/training_log.json'
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    log_file = f'./log/training_log_{timestamp}.json'
+    # log_file = './log/training_log.json'
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load data
-    train_loader, test_loader = load_data(data_dir, augment_dir, batch_size)
+    train_loader, test_loader = load_data(data_dir, augment_dir, batch_size, 0.2, args.augment)
 
     # Init googlenet model
     model = googlenet(num_classes=num_classes)
@@ -43,6 +47,7 @@ def main(args):
     test_losses = []
     train_acc = []
     test_acc = []
+    test_times = []
 
     best_accuracy = 0.0
 
@@ -76,6 +81,8 @@ def main(args):
         correct = 0
         total = 0
 
+        start_time = time.time()
+
         with torch.no_grad():
             for inputs, labels in test_loader:
                 inputs, labels = inputs.to(device), labels.to(device)
@@ -86,6 +93,10 @@ def main(args):
                 total += labels.size(0)
                 correct += predicted.eq(labels).sum().item()
 
+        end_time = time.time()
+        test_time = end_time - start_time
+        test_times.append(test_time)
+
         test_loss = running_loss / len(test_loader)
         test_accuracy = 100.0 * correct / total
         test_losses.append(test_loss)
@@ -94,7 +105,8 @@ def main(args):
         print(
             f'Epoch [{epoch + 1}/{num_epochs}],'
             f' Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.2f}%,'
-            f' Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%')
+            f' Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%,'
+            f' Test Time: {test_time:.4f} seconds')
 
         # Save the weights of googlenet if test accuracy is higher than the best accuracy
         if test_accuracy > best_accuracy:
@@ -107,6 +119,7 @@ def main(args):
             'test_losses': test_losses,
             'train_acc': train_acc,
             'test_acc': test_acc,
+            'test_times': test_times
         }
         with open(log_file, 'w') as f:
             json.dump(log_data, f)
@@ -115,13 +128,16 @@ def main(args):
 def arguments() -> Namespace:
     parser = argparse.ArgumentParser(description='Arguments for training GoogLeNet')
 
+    parser.add_argument('--augment',
+                        action='store_true', 
+                        help='Whether to augment the data or not')
     parser.add_argument('--num_classes',
                         type=int,
                         default=2,
                         help='The number of categories for the network to predict')
     parser.add_argument('--epoch',
                         type=int,
-                        default=200,
+                        default=100,
                         help='The number of Epochs for network training')
     parser.add_argument('--batch_size',
                         type=int,

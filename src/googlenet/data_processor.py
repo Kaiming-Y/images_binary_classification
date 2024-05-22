@@ -22,7 +22,7 @@ def load_data(
 
     augment_transform = transforms.Compose([
         RandomHorizontalFlip(),
-        RandomRotation(180)
+        RandomRotation(30)
     ])
 
     # Original dataset
@@ -98,7 +98,7 @@ def augment_images(
         transform: transforms = None
 ) -> List[Tuple[str, int]]:
     if transform is None:
-        transform = transforms.Compose([RandomHorizontalFlip(), RandomRotation(180)])
+        transform = transforms.Compose([RandomHorizontalFlip(), RandomRotation(10)])
 
     augmented_images = []
     for img_path in image_list:

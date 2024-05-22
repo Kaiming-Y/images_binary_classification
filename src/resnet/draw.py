@@ -1,7 +1,3 @@
-"""
-这份代码在train.py代码运行完毕（即网络训练完成后）再运行，会生成训练损失函数曲线和训练准确度曲线。
-损失函数曲线应当是先快速下降然后逐渐收敛；训练准确度曲线应当是先快速上升然后逐步平稳。
-"""
 import os
 import json
 import argparse
@@ -12,11 +8,11 @@ def get_arguments():
     parser.add_argument('--json_path',
                         default='./training_statistic.json',
                         type=str,
-                        help='在训练时生成的training_statistic.json文件的路径。其中存储了网络训练过程中的损失和精度数据')
+                        help='The path to the training_statistic.json file generated during training. It stores the loss and accuracy data during network training.')
     parser.add_argument('--save_dir',
                         default='./',
                         type=str,
-                        help='存储绘制曲线图的路径')
+                        help='Store the path for drawing the curve graph')
     return parser.parse_args()
 
 def draw_plots(json_path: str,
@@ -27,7 +23,6 @@ def draw_plots(json_path: str,
 
     loss, accuracy = statistics['loss'], statistics['accuracy']
 
-    '''保存损失曲线'''
     plt.figure(1)
     plt.plot(range(len(loss)), loss)
     plt.xlabel('Epoch')
@@ -36,7 +31,6 @@ def draw_plots(json_path: str,
     plt.savefig(os.path.join(save_dir, 'train_loss.png'), dpi=600)
     plt.show()
 
-    '''保存精度曲线'''
     plt.figure(2)
     plt.plot(range(len(accuracy)), accuracy)
     plt.xlabel('Epoch')

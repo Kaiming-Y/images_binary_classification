@@ -1,5 +1,5 @@
 import json
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 
 def plot_loss_curve() -> None:

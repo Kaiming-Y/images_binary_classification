@@ -20,6 +20,7 @@ def main(args):
     model_dir = args.model_dir
     os.makedirs(model_dir, exist_ok=True)
     log_file = './log/training_log.json'
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load data
@@ -35,7 +36,7 @@ def main(args):
 
     # Loss function & Optimizer
     loss_func = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Train googlenet model
     train_losses = []
@@ -128,7 +129,7 @@ def arguments() -> Namespace:
                         help='Batch size, the general setting range is between 4 and 32.')
     parser.add_argument('--lr',
                         type=float,
-                        default=0.01,
+                        default=0.001,
                         help='Network training learning rate')
     parser.add_argument('--dataset_dir',
                         type=str,

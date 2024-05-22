@@ -1,9 +1,13 @@
 import json
 import matplotlib.pyplot as plt
+import os
 
+
+save_path = '../../fig/googlenet'
+os.makedirs(save_path, exist_ok=True)
 
 def plot_loss_curve() -> None:
-    with open('training_log.json', 'r') as f:
+    with open('./log/training_log.json', 'r') as f:
         log_data = json.load(f)
 
     train_losses = log_data['train_losses']
@@ -13,7 +17,7 @@ def plot_loss_curve() -> None:
 
     plot_metrics(train_losses, test_losses, train_acc, test_acc)
 
-    with open('eval_metrics.json', 'r') as f:
+    with open('./log/eval_metrics.json', 'r') as f:
         metrics_data = json.load(f)
 
     accuracy = metrics_data['accuracy']
@@ -48,6 +52,8 @@ def plot_metrics(train_losses, test_losses, train_acc, test_acc) -> None:
     plt.ylabel('Accuracy')
     plt.legend()
 
+    plt.tight_layout()
+    plt.savefig(os.path.join(save_path, 'metrics_plot.png'))
     plt.show()
 
 

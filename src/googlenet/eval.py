@@ -14,7 +14,8 @@ def main(args):
     data_dir = os.path.join(args.dataset_dir, 'dataset')
     augment_dir = os.path.join(args.dataset_dir, 'dataset_augmented')
     model_path = os.path.join(args.model_dir, args.model)
-    log_path = './log/eval_metrics.json'
+    log_file = './log/eval_metrics.json'
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     # Load data
     _, test_loader = load_data(data_dir, augment_dir, batch_size)
@@ -41,7 +42,7 @@ def main(args):
         'recall': recall,
         'f1_score': f1_score,
     }
-    with open(log_path, 'w') as f:
+    with open(log_file, 'w') as f:
         json.dump(metrics_data, f)
 
 

@@ -4,30 +4,31 @@ import json
 from argparse import Namespace
 import torch
 from data_processor import load_data
-from model import googlenet
 from utils import calculate_metrics
 from datetime import datetime
+from models import get_model
 
 
 def main(args):
     # Parameters
     num_classes = args.num_classes
     batch_size = args.batch_size
-    data_dir = os.path.join(args.dataset_dir, 'dataset')
-    augment_dir = os.path.join(args.dataset_dir, 'dataset_augmented')
-    model_path = os.path.join(args.model_dir, args.model)
+    data_dir = os.path.join(args.data_dir, 'dataset')
+    augment_dir = os.path.join(args.data_dir, 'dataset_augmented')
+    weight_root_dir = args.weight_dir
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_file = f'./log/eval_metrics_{timestamp}.json'
-    # log_file = './log/eval_metrics.json'
+    log_file = f'./log/{args.model}_eval_metrics_{timestamp}.json'
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
     # Load data
     _, test_loader = load_data(data_dir, augment_dir, batch_size, 0.2, args.augment)
 
-    # Init GoogLeNet
-    model = googlenet(num_classes=num_classes)
+    # Init model
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.load_state_dict(torch.load(model_path))
+    model = get_model(args.model, num_classes)
+    trained_model_file = os.path.join(weight_root_dir, f'{args.model}_model.pth')
+    assert os.path.exists(trained_model_file), f"weight file {trained_model_file} does not exist"
+    model.load_state_dict(torch.load(trained_model_file, map_location=device))
     model.to(device)
 
     # Evaluation
@@ -51,10 +52,17 @@ def main(args):
 
 
 def arguments() -> Namespace:
-    parser = argparse.ArgumentParser(description='Arguments for evaluating GoogLeNet')
+    parser = argparse.ArgumentParser(description='Arguments for evaluating models')
 
+    parser.add_argument('--model',
+                        type=str,
+                        required=True,
+                        choices=['googlenet', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
+                                 'vgg19', 'vgg19_bn', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
+                                 'resnet152'],
+                        help='The name of the model to evaluate')
     parser.add_argument('--augment',
-                        action='store_true', 
+                        action='store_true',
                         help='Whether to augment the data or not')
     parser.add_argument('--num_classes',
                         type=int,
@@ -64,18 +72,19 @@ def arguments() -> Namespace:
                         type=int,
                         default=32,
                         help='Batch size, the general setting range is between 4 and 32.')
-    parser.add_argument('--dataset_dir',
+    parser.add_argument('--data_dir',
                         type=str,
-                        default='../../data',
+                        default='../data',
                         help='Directory to the datasets')
-    parser.add_argument('--model_dir',
+    parser.add_argument('--weight_dir',
                         type=str,
-                        default='../../model/googlenet',
+                        default='../model_weight',
                         help='Directory to the model weights')
-    parser.add_argument('--model',
-                        type=str,
-                        default='googlenet_model.pth',
-                        help='Name of the pre-trained model in model directory')
+    # parser.add_argument('--trained_model',
+    #                     type=str,
+    #                     default=None,
+    #                     required=True,
+    #                     help='Name of the trained model in model weights directory')
 
     return parser.parse_args()
 

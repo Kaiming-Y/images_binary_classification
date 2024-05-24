@@ -60,7 +60,6 @@ def load_data(
     train_images = ship_train_images + sea_train_images
     test_images = ship_test_images + sea_test_images
 
-
     class CustomDataset(Dataset):
         def __init__(
                 self,

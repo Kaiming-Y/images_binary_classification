@@ -85,14 +85,10 @@ def arguments() -> Namespace:
                                  'vgg19', 'vgg19_bn', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
                                  'resnet152'],
                         help='The name of the model to train')
-    parser.add_argument('--log_dir',
-                        type=str,
-                        default='./log',
-                        help='The path to training log')
-    parser.add_argument('--timestamp',
+    parser.add_argument('--log_file',
                         type=str,
                         required=True,
-                        help='The last timestamp of the training log file')
+                        help='The path to training log file')
     parser.add_argument('--output_dir',
                         type=str,
                         default='../fig',

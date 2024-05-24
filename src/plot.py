@@ -8,7 +8,6 @@ import numpy as np
 
 
 def plot(args) -> None:
-    model_name = args.model
     train_log_file = os.path.join(args.log_dir, f'{args.model}_training_log_{args.timestamp}.json')
 
     with open(train_log_file, 'r') as f:
@@ -20,11 +19,11 @@ def plot(args) -> None:
     test_acc = log_data['test_acc']
     test_times = log_data['test_times']
 
-    plot_loss_acc(train_losses, test_losses, train_acc, test_acc, model_name)
-    plot_test_times(test_times, model_name)
+    plot_loss_acc(train_losses, test_losses, train_acc, test_acc, args)
+    plot_test_times(test_times, args)
 
 
-def plot_loss_acc(train_losses, test_losses, train_acc, test_acc, model_name) -> None:
+def plot_loss_acc(train_losses, test_losses, train_acc, test_acc, args) -> None:
     epochs = range(1, len(train_losses) + 1)
 
     plt.figure(figsize=(12, 5))
@@ -32,7 +31,7 @@ def plot_loss_acc(train_losses, test_losses, train_acc, test_acc, model_name) ->
     plt.subplot(1, 2, 1)
     plt.plot(epochs, train_losses, 'r-', label='Train Loss')
     plt.plot(epochs, test_losses, 'b-', label='Test Loss')
-    plt.title(f'Loss ({model_name})')
+    plt.title(f'Loss ({args.model_name})')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
@@ -40,21 +39,21 @@ def plot_loss_acc(train_losses, test_losses, train_acc, test_acc, model_name) ->
     plt.subplot(1, 2, 2)
     plt.plot(epochs, train_acc, 'r-', label='Train Accuracy')
     plt.plot(epochs, test_acc, 'b-', label='Test Accuracy')
-    plt.title(f'Accuracy ({model_name})')
+    plt.title(f'Accuracy ({args.model_name})')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
 
-    output_dir = args.output_dir
+    output_dir = os.path.join(args.output_dir, args.model_name)
     os.makedirs(output_dir, exist_ok=True)
 
     plt.tight_layout()
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    plt.savefig(os.path.join(output_dir, model_name, f'{model_name}_loss_acc_{timestamp}.png'))
+    plt.savefig(os.path.join(output_dir, f'{args.model_name}_loss_acc_{timestamp}.png'))
     plt.show()
 
 
-def plot_test_times(test_times, model_name):
+def plot_test_times(test_times, args):
     epochs = range(1, len(test_times) + 1)
     avg_test_time = np.mean(test_times)
 
@@ -62,17 +61,17 @@ def plot_test_times(test_times, model_name):
 
     plt.plot(epochs, test_times, 'g-', label='Test Time')
     plt.axhline(y=avg_test_time, color='r', linestyle='--', label=f'Avg Time: {avg_test_time:.4f} sec')
-    plt.title(f'Test Time per Epoch ({model_name})')
+    plt.title(f'Test Time per Epoch ({args.model_name})')
     plt.xlabel('Epochs')
     plt.ylabel('Time (seconds)')
     plt.legend()
 
-    output_dir = args.output_dir
+    output_dir = os.path.join(args.output_dir, args.model_name)
     os.makedirs(output_dir, exist_ok=True)
 
     plt.tight_layout()
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    plt.savefig(os.path.join(output_dir, model_name, f'{model_name}_test_time_{timestamp}.png'))
+    plt.savefig(os.path.join(output_dir, f'{args.model_name}_test_time_{timestamp}.png'))
     plt.show()
 
 

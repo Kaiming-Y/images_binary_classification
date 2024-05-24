@@ -5,8 +5,7 @@ import json
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from data_processor import load_data
-from model import VGG, GoogLeNet, ResNet
+from data_loader import load_data
 from datetime import datetime
 import time
 from models import get_model

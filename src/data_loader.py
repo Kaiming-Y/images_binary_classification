@@ -5,6 +5,7 @@ from typing import Tuple, List
 from torchvision import transforms
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import RandomHorizontalFlip, RandomRotation
+from data_augmentation import augment_images
 
 
 def load_data(
@@ -20,11 +21,6 @@ def load_data(
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
     ])
 
-    augment_transform = transforms.Compose([
-        RandomHorizontalFlip(),
-        RandomRotation(30)
-    ])
-
     # Original dataset
     ship_dir = os.path.join(data_dir, 'ship')
     sea_dir = os.path.join(data_dir, 'sea')
@@ -34,13 +30,22 @@ def load_data(
     sea_images = [(img, 0) for img in sea_images_raw]
 
     if augment:
-        # Augmented dataset
-        os.makedirs(augment_dir, exist_ok=True)
-        os.makedirs(os.path.join(augment_dir, 'ship'), exist_ok=True)
-        os.makedirs(os.path.join(augment_dir, 'sea'), exist_ok=True)
-        augmented_ship_images = augment_images(ship_images_raw, 1, 5, os.path.join(augment_dir, 'ship'), augment_transform)
-        augmented_sea_images = augment_images(sea_images_raw, 0, 1, os.path.join(augment_dir, 'sea'), augment_transform)
-
+        if os.path.exists(augment_dir):
+            # Load augmented dataset
+            augmented_ship_images = [(os.path.join(augment_dir, 'ship', file_name), 1) for file_name in
+                                     os.listdir(os.path.join(augment_dir, 'ship'))]
+            augmented_sea_images = [(os.path.join(augment_dir, 'sea', file_name), 0) for file_name in
+                                    os.listdir(os.path.join(augment_dir, 'sea'))]
+        else:
+            # Augment the dataset
+            augment_transform = transforms.Compose([
+                RandomHorizontalFlip(),
+                RandomRotation(30)
+            ])
+            augmented_ship_images = augment_images(ship_images_raw, 1, 5, os.path.join(augment_dir, 'ship'),
+                                                   augment_transform)
+            augmented_sea_images = augment_images(sea_images_raw, 0, 1, os.path.join(augment_dir, 'sea'),
+                                                  augment_transform)
         # Integrate original and augmented data sets: 6000 ship & 6000 sea images
         ship_images = ship_images + augmented_ship_images
         sea_images = sea_images + augmented_sea_images
@@ -87,25 +92,3 @@ def load_data(
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     return train_loader, test_loader
-
-
-def augment_images(
-        image_list: List[str],
-        label: int,
-        augmentations: int,
-        output_dir: str,
-        transform: transforms = None
-) -> List[Tuple[str, int]]:
-    if transform is None:
-        transform = transforms.Compose([RandomHorizontalFlip(), RandomRotation(10)])
-
-    augmented_images = []
-    for img_path in image_list:
-        img = Image.open(img_path)
-        base_name = os.path.basename(img_path)
-        for i in range(augmentations):
-            augmented_img = transform(img)
-            augmented_img_path = os.path.join(output_dir, f"{base_name}_aug_{i}.jpg")
-            augmented_img.save(augmented_img_path)
-            augmented_images.append((augmented_img_path, label))
-    return augmented_images

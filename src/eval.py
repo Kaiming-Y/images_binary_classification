@@ -3,7 +3,7 @@ import os
 import json
 from argparse import Namespace
 import torch
-from data_processor import load_data
+from data_loader import load_data
 from utils import calculate_metrics
 from datetime import datetime
 from models import get_model

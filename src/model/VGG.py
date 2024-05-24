@@ -1,6 +1,7 @@
 from typing import List, Union, cast, Dict, Any
 import torch
 import torch.nn as nn
+from torch import Tensor
 
 
 class VGG(nn.Module):
@@ -25,13 +26,6 @@ class VGG(nn.Module):
         if init_weights:
             self._initialize_weights()
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.features(x)
-        x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-        x = self.classifier(x)
-        return x
-
     def _initialize_weights(self) -> None:
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -44,6 +38,13 @@ class VGG(nn.Module):
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
+
+    def forward(self, x: Tensor) -> Tensor:
+        x = self.features(x)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier(x)
+        return x
 
 
 def make_layers(cfg: List[Union[str, int]], batch_norm: bool = False) -> nn.Sequential:
@@ -78,8 +79,10 @@ def _vgg(cfg: str, batch_norm: bool, **kwargs: Any) -> VGG:
 def vgg11(**kwargs: Any) -> VGG:
     """
     VGG 11-layer model
+
     Args:
         **kwargs: refer to VGG class
+
             - num_classes (int): number of classes (The number of neurons in the last FC layer)
             - init_weights (bool): whether to initialize the weights in each layer
     """
@@ -89,8 +92,10 @@ def vgg11(**kwargs: Any) -> VGG:
 def vgg11_bn(**kwargs: Any) -> VGG:
     """
     VGG 11-layer model with bath normalization
+
     Args:
         **kwargs: refer to VGG class
+
             - num_classes (int): number of classes (The number of neurons in the last FC layer)
             - init_weights (bool): whether to initialize the weights in each layer
     """
@@ -100,8 +105,10 @@ def vgg11_bn(**kwargs: Any) -> VGG:
 def vgg13(**kwargs: Any) -> VGG:
     """
     VGG 13-layer model
+
     Args:
         **kwargs: refer to VGG class
+
             - num_classes (int): number of classes (The number of neurons in the last FC layer)
             - init_weights (bool): whether to initialize the weights in each layer
     """
@@ -111,8 +118,10 @@ def vgg13(**kwargs: Any) -> VGG:
 def vgg13_bn(**kwargs: Any) -> VGG:
     """
     VGG 13-layer model with bath normalization
+
     Args:
         **kwargs: refer to VGG class
+
             - num_classes (int): number of classes (The number of neurons in the last FC layer)
             - init_weights (bool): whether to initialize the weights in each layer
     """
@@ -122,8 +131,10 @@ def vgg13_bn(**kwargs: Any) -> VGG:
 def vgg16(**kwargs: Any) -> VGG:
     """
     VGG 16-layer model
+
     Args:
         **kwargs: refer to VGG class
+
             - num_classes (int): number of classes (The number of neurons in the last FC layer)
             - init_weights (bool): whether to initialize the weights in each layer
     """
@@ -133,8 +144,10 @@ def vgg16(**kwargs: Any) -> VGG:
 def vgg16_bn(**kwargs: Any) -> VGG:
     """
     VGG 16-layer model with bath normalization
+
     Args:
         **kwargs: refer to VGG class
+
             - num_classes (int): number of classes (The number of neurons in the last FC layer)
             - init_weights (bool): whether to initialize the weights in each layer
     """
@@ -144,8 +157,10 @@ def vgg16_bn(**kwargs: Any) -> VGG:
 def vgg19(**kwargs: Any) -> VGG:
     """
     VGG 19-layer model
+
     Args:
         **kwargs: refer to VGG class
+
             - num_classes (int): number of classes (The number of neurons in the last FC layer)
             - init_weights (bool): whether to initialize the weights in each layer
     """
@@ -155,8 +170,10 @@ def vgg19(**kwargs: Any) -> VGG:
 def vgg19_bn(**kwargs: Any) -> VGG:
     """
     VGG 19-layer model with bath normalization
+
     Args:
         **kwargs: refer to VGG class
+
             - num_classes (int): number of classes (The number of neurons in the last FC layer)
             - init_weights (bool): whether to initialize the weights in each layer
     """

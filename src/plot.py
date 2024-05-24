@@ -8,7 +8,7 @@ import numpy as np
 
 
 def plot(args) -> None:
-    train_log_file = os.path.join(args.log_dir, f'{args.model}_training_log_{args.timestamp}.json')
+    train_log_file = args.log_file
 
     with open(train_log_file, 'r') as f:
         log_data = json.load(f)

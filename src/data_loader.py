@@ -30,13 +30,15 @@ def load_data(
     sea_images = [(img, 0) for img in sea_images_raw]
 
     if augment:
-        if os.path.exists(augment_dir):
+        if check_files_in_directory(augment_dir):
+            print("Augmented images detected! Using existing augmented images.")
             # Load augmented dataset
             augmented_ship_images = [(os.path.join(augment_dir, 'ship', file_name), 1) for file_name in
                                      os.listdir(os.path.join(augment_dir, 'ship'))]
             augmented_sea_images = [(os.path.join(augment_dir, 'sea', file_name), 0) for file_name in
                                     os.listdir(os.path.join(augment_dir, 'sea'))]
         else:
+            print("Augmentation beginning...")
             # Augment the dataset
             augment_transform = transforms.Compose([
                 RandomHorizontalFlip(),
@@ -46,6 +48,7 @@ def load_data(
                                                    augment_transform)
             augmented_sea_images = augment_images(sea_images_raw, 0, 1, os.path.join(augment_dir, 'sea'),
                                                   augment_transform)
+            print("Augmentation finished.")
         # Integrate original and augmented data sets: 6000 ship & 6000 sea images
         ship_images = ship_images + augmented_ship_images
         sea_images = sea_images + augmented_sea_images
@@ -92,3 +95,13 @@ def load_data(
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     return train_loader, test_loader
+
+
+def check_files_in_directory(directory_path):
+    if not os.path.exists(directory_path):
+        return False
+
+    for root, dirs, files in os.walk(directory_path):
+        if files:
+            return True
+    return False

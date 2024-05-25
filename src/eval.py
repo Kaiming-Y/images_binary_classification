@@ -10,45 +10,59 @@ from models import get_model
 
 
 def main(args):
-    # Parameters
-    num_classes = args.num_classes
-    batch_size = args.batch_size
-    data_dir = os.path.join(args.data_dir, 'dataset')
-    augment_dir = os.path.join(args.data_dir, 'dataset_augmented')
-    weight_root_dir = args.weight_dir
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_file = f'./log/{args.model}_eval_metrics_{timestamp}.json'
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    log_file = None
 
-    # Load data
-    _, test_loader = load_data(data_dir, augment_dir, batch_size, 0.2, args.augment)
+    try:
+        # Parameters
+        num_classes = args.num_classes
+        batch_size = args.batch_size
+        data_dir = os.path.join(args.data_dir, 'dataset')
+        augment_dir = os.path.join(args.data_dir, 'dataset_augmented')
+        weight_root_dir = args.weight_dir
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_file = f'./log/{args.model}_eval_metrics_augmented_{timestamp}.json' if args.augment else f'./log/{args.model}_eval_metrics_{timestamp}.json'
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
-    # Init model
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = get_model(args.model, num_classes)
-    trained_model_file = os.path.join(weight_root_dir, f'{args.model}_model.pth')
-    assert os.path.exists(trained_model_file), f"weight file {trained_model_file} does not exist"
-    model.load_state_dict(torch.load(trained_model_file, map_location=device))
-    model.to(device)
+        # Load data
+        _, test_loader = load_data(data_dir, augment_dir, batch_size, 0.2, args.augment)
 
-    # Evaluation
-    accuracy, precision, recall, f1_score = calculate_metrics(model, test_loader, device)
+        # Init model
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        model = get_model(args.model, num_classes)
+        trained_model_file = os.path.join(weight_root_dir, f'{args.model}_model.pth')
+        assert os.path.exists(trained_model_file), f"weight file {trained_model_file} does not exist"
+        model.load_state_dict(torch.load(trained_model_file, map_location=device))
+        model.to(device)
 
-    # Print result
-    print(f'Accuracy: {accuracy:.4f}')
-    print(f'Precision: {precision:.4f}')
-    print(f'Recall: {recall:.4f}')
-    print(f'F1 Score: {f1_score:.4f}')
+        # Evaluation
+        accuracy, precision, recall, f1_score = calculate_metrics(model, test_loader, device)
 
-    # Save the metrics
-    metrics_data = {
-        'accuracy': accuracy,
-        'precision': precision,
-        'recall': recall,
-        'f1_score': f1_score,
-    }
-    with open(log_file, 'w') as f:
-        json.dump(metrics_data, f)
+        # Print result
+        print(f'Accuracy: {accuracy:.4f}')
+        print(f'Precision: {precision:.4f}')
+        print(f'Recall: {recall:.4f}')
+        print(f'F1 Score: {f1_score:.4f}')
+
+        # Save the metrics
+        metrics_data = {
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1_score': f1_score,
+        }
+        with open(log_file, 'w') as f:
+            json.dump(metrics_data, f)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        if log_file and os.path.exists(log_file):
+            os.remove(log_file)
+        raise
+    finally:
+        if log_file and os.path.exists(log_file):
+            print(f"Log file generated: {log_file}")
+        else:
+            print("Log file was removed due to an error.")
 
 
 def arguments() -> Namespace:

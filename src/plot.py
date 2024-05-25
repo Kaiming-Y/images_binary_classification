@@ -31,7 +31,7 @@ def plot_loss_acc(train_losses, test_losses, train_acc, test_acc, args) -> None:
     plt.subplot(1, 2, 1)
     plt.plot(epochs, train_losses, 'r-', label='Train Loss')
     plt.plot(epochs, test_losses, 'b-', label='Test Loss')
-    plt.title(f'Loss ({args.model_name})')
+    plt.title(f'Loss ({args.model})')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
@@ -39,17 +39,17 @@ def plot_loss_acc(train_losses, test_losses, train_acc, test_acc, args) -> None:
     plt.subplot(1, 2, 2)
     plt.plot(epochs, train_acc, 'r-', label='Train Accuracy')
     plt.plot(epochs, test_acc, 'b-', label='Test Accuracy')
-    plt.title(f'Accuracy ({args.model_name})')
+    plt.title(f'Accuracy ({args.model})')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
 
-    output_dir = os.path.join(args.output_dir, args.model_name)
+    output_dir = os.path.join(args.output_dir, args.model)
     os.makedirs(output_dir, exist_ok=True)
 
     plt.tight_layout()
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    plt.savefig(os.path.join(output_dir, f'{args.model_name}_loss_acc_{timestamp}.png'))
+    plt.savefig(os.path.join(output_dir, f'{args.model}_loss_acc_{timestamp}.png'))
     plt.show()
 
 
@@ -61,17 +61,17 @@ def plot_test_times(test_times, args):
 
     plt.plot(epochs, test_times, 'g-', label='Test Time')
     plt.axhline(y=avg_test_time, color='r', linestyle='--', label=f'Avg Time: {avg_test_time:.4f} sec')
-    plt.title(f'Test Time per Epoch ({args.model_name})')
+    plt.title(f'Test Time per Epoch ({args.model})')
     plt.xlabel('Epochs')
     plt.ylabel('Time (seconds)')
     plt.legend()
 
-    output_dir = os.path.join(args.output_dir, args.model_name)
+    output_dir = os.path.join(args.output_dir, args.model)
     os.makedirs(output_dir, exist_ok=True)
 
     plt.tight_layout()
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    plt.savefig(os.path.join(output_dir, f'{args.model_name}_test_time_{timestamp}.png'))
+    plt.savefig(os.path.join(output_dir, f'{args.model}_test_time_{timestamp}.png'))
     plt.show()
 
 

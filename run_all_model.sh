@@ -3,7 +3,7 @@
 cd ./src || { echo "Failed to change directory to ./src"; exit 1; }
 
 LOG_FILE="../training_evaluation.log"
-models=('googlenet' 'vgg11' 'vgg11_bn' 'vgg13' 'vgg13_bn' 'vgg16' 'vgg16_bn' 'vgg19' 'vgg19_bn' 'resnet18' 'resnet34' 'resnet50' 'resnet101' 'resnet152')
+models=('vgg13' 'googlenet' 'vgg11' 'vgg11_bn' 'vgg13_bn' 'vgg16' 'vgg16_bn' 'vgg19' 'vgg19_bn' 'resnet18' 'resnet34' 'resnet50' 'resnet101' 'resnet152')
 
 > $LOG_FILE
 

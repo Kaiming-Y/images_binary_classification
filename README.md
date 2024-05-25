@@ -1,4 +1,4 @@
-# Image Binary Classification Project
+# Image Binary Classification
 
 This project focuses on the task of binary image classification using custom implementations of various deep learning models with PyTorch. The models used in this project include variants of VGG, GoogLeNet, and ResNet.
 

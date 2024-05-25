@@ -7,6 +7,7 @@ from data_loader import load_data
 from utils import calculate_metrics
 from datetime import datetime
 from models import get_model
+import time
 
 
 def main(args):

@@ -6,6 +6,19 @@ from torchvision import transforms
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import RandomHorizontalFlip, RandomRotation
 from data_augmentation import augment_images
+import torch
+import numpy as np
+
+
+def set_seed(seed_value):
+    random.seed(seed_value)
+    np.random.seed(seed_value)
+    torch.manual_seed(seed_value)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed_value)
+        torch.cuda.manual_seed_all(seed_value)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def load_data(
@@ -13,8 +26,11 @@ def load_data(
         augment_dir: str,
         batch_size: int = 32,
         test_ratio: float = 0.2,
-        augment: bool = False
+        augment: bool = False,
+        seed_value: int = 42
 ) -> Tuple[DataLoader, DataLoader]:
+    set_seed(seed_value)
+
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),

@@ -97,7 +97,7 @@ python data_augmentation.py
 
 More information about arguments can be found in `train.py` and `eval.py`.
 
-If you want to train and evaluate all the models, you can run the shell scripts `run_all_model.sh` under the root directory.
+If you want to train and evaluate all the models, you can run the shell scripts `run_all_model.sh` to do so. Besides, you can also run `train_all.sh` to train all the model or run `eval_all.sh` to evaluate all the model (if you have trained them already).
 
 ### Visualization
 

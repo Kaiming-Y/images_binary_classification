@@ -34,14 +34,20 @@ def main(args):
         model.load_state_dict(torch.load(trained_model_file, map_location=device))
         model.to(device)
 
+        start_time = time.time()
+
         # Evaluation
         accuracy, precision, recall, f1_score = calculate_metrics(model, test_loader, device)
+
+        end_time = time.time()
+        test_time = end_time - start_time
 
         # Print result
         print(f'Accuracy: {accuracy:.4f}')
         print(f'Precision: {precision:.4f}')
         print(f'Recall: {recall:.4f}')
         print(f'F1 Score: {f1_score:.4f}')
+        print(f'Test Time: {test_time:.4f} seconds')
 
         # Save the metrics
         metrics_data = {
@@ -49,6 +55,7 @@ def main(args):
             'precision': precision,
             'recall': recall,
             'f1_score': f1_score,
+            'test_time': test_time
         }
         with open(log_file, 'w') as f:
             json.dump(metrics_data, f)

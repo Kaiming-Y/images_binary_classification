@@ -3,7 +3,6 @@ from argparse import Namespace
 import json
 import matplotlib.pyplot as plt
 import os
-from datetime import datetime
 import numpy as np
 
 
@@ -48,8 +47,8 @@ def plot_loss_acc(train_losses, test_losses, train_acc, test_acc, args) -> None:
     os.makedirs(output_dir, exist_ok=True)
 
     plt.tight_layout()
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    plt.savefig(os.path.join(output_dir, f'{args.model}_loss_acc_{timestamp}.png'))
+    file_prefix = os.path.basename(args.log_file).replace('.json', '').replace('training_log_', '')
+    plt.savefig(os.path.join(output_dir, f'{file_prefix}_loss_acc.png'))
     plt.show()
 
 
@@ -70,8 +69,8 @@ def plot_test_times(test_times, args):
     os.makedirs(output_dir, exist_ok=True)
 
     plt.tight_layout()
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    plt.savefig(os.path.join(output_dir, f'{args.model}_test_time_{timestamp}.png'))
+    file_prefix = os.path.basename(args.log_file).replace('.json', '').replace('training_log_', '')
+    plt.savefig(os.path.join(output_dir, f'{file_prefix}_test_time.png'))
     plt.show()
 
 

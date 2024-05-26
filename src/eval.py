@@ -8,6 +8,7 @@ from utils import calculate_metrics
 from datetime import datetime
 from models import get_model
 import time
+from sklearn.metrics import classification_report, confusion_matrix
 
 
 def main(args):
@@ -38,7 +39,7 @@ def main(args):
         start_time = time.time()
 
         # Evaluation
-        accuracy, precision, recall, f1_score = calculate_metrics(model, test_loader, device)
+        accuracy, precision, recall, f1_score, cm, report = calculate_metrics(model, test_loader, device)
 
         end_time = time.time()
         test_time = end_time - start_time
@@ -49,6 +50,8 @@ def main(args):
         print(f'Recall: {recall:.4f}')
         print(f'F1 Score: {f1_score:.4f}')
         print(f'Test Time: {test_time:.4f} seconds')
+        print(f'Confusion Matrix:\n{cm}')
+        print(f'Classification Report:\n{classification_report(all_labels, all_preds)}')
 
         # Save the metrics
         metrics_data = {
@@ -56,7 +59,9 @@ def main(args):
             'precision': precision,
             'recall': recall,
             'f1_score': f1_score,
-            'test_time': test_time
+            'test_time': test_time,
+            'confusion_matrix': cm.tolist(),
+            'classification_report': report
         }
         with open(log_file, 'w') as f:
             json.dump(metrics_data, f)
@@ -102,11 +107,6 @@ def arguments() -> Namespace:
                         type=str,
                         default='../model_weight',
                         help='Directory to the model weights')
-    # parser.add_argument('--trained_model',
-    #                     type=str,
-    #                     default=None,
-    #                     required=True,
-    #                     help='Name of the trained model in model weights directory')
 
     return parser.parse_args()
 

@@ -8,7 +8,6 @@ from utils import calculate_metrics
 from datetime import datetime
 from models import get_model
 import time
-from sklearn.metrics import classification_report, confusion_matrix
 
 
 def main(args):
@@ -51,7 +50,7 @@ def main(args):
         print(f'F1 Score: {f1_score:.4f}')
         print(f'Test Time: {test_time:.4f} seconds')
         print(f'Confusion Matrix:\n{cm}')
-        print(f'Classification Report:\n{classification_report(all_labels, all_preds)}')
+        print(f'Classification Report:\n{report}')
 
         # Save the metrics
         metrics_data = {

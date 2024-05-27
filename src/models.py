@@ -29,7 +29,7 @@ def get_model(model_name: str, num_classes) -> nn.Module:
         model = ResNet.resnet50(num_classes=num_classes)
     elif model_name == 'resnet101':
         model = ResNet.resnet101(num_classes=num_classes)
-    elif model_name == 'resent152':
+    elif model_name == 'resnet152':
         model = ResNet.resnet152(num_classes=num_classes)
     else:
         raise ValueError(f'Unknown model name: {model_name}')

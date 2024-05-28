@@ -85,7 +85,7 @@ python data_augmentation.py
    python train.py --model googlenet --epoch 100
    ```
 
-   You can choose a model from the [models implemented](README.md#Models Implemented) following the argument `--model`.
+   You can choose a model from the [models implemented](https://github.com/abecedarian007/images_binary_classification/blob/master/README.md#models-implemented) following the argument `--model`.
 
 2. Evaluation
 
